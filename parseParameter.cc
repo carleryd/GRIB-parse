@@ -3,15 +3,14 @@
 #include <string>
 #include <stdlib.h>
 #include <vector>
+#include <math.h>
 using namespace std;
 
 // This program reads GRIB-data stored in format
 // Latitude, Longitude, Value
 // and writes it into format
-// [Value1,Value2,Value3,...]
-//
-// Set source path as first argument and destination as second.
-// Optional third argument is point_interval, default 14
+// {values":[value1,value2,value3,...]}
+// USAGE: ./parseParameter ../GRIB-data/ /Users/christoferarleryd/Development/Visiarc_tools/Solklart/solklart/Other/SMHI-data/pcat.json pcat 16
 int main(int argc, char **argv)
 {
     if(argc < 5 || argc > 6) {
@@ -52,8 +51,10 @@ int main(int argc, char **argv)
         while(!parameter_file_in.eof()) {
             parameter_file_in >> trash >> trash >> value;
             // Round cloud parameter to 2 decimals instead of 7.
-            value = (int)(value * 100);
-            value = value / 100;
+            //value = (int)(value * 100);
+            //value = value / 100;
+            //value = floor(value * 10000000.0) / 10000000.0;
+            value = floor(value * 100.0) / 100.0;
             values.push_back(value);
         }
 
@@ -77,41 +78,15 @@ int main(int argc, char **argv)
                 }
             }
         }
-        //
         // Useful to check so that it adds up to expectations
         cout << count << " amount of values stored from file time_" << i+1 << "/" << argv[3] << endl;
         cout << "values vector size: " << values.size() << endl;
-        
+
         // Clear vector and use it to store values for next file.
         values.clear();
         count = 0;
-}
-parameter_file_out << "]}";
-
-return 0;
-}
-
-    /*
-    while(!value_file_in.eof()) {
-        if((latCount % point_interval == 0) && (lonCount % point_interval == 0)) {
-            value_file_in >> latitude >> longitude >> value;
-            value_file_out << value << ',';
-            count++;
-        }
-        else {
-            value_file_in >> trash >> trash >> trash;
-        }
-        latCount++;
-
-        // Reached end of longitude line, start again from start at next longitude
-        if(latCount % latAmount == 0) {
-            lonCount++;
-            latCount = 0;
-        }
     }
-    // Useful to check so that it adds up to expectations
-    //cout << count << " amount of values stored." << endl;
-    
+    parameter_file_out << "]}";
+
     return 0;
 }
-*/

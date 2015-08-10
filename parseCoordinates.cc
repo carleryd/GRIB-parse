@@ -19,25 +19,25 @@ void rotated_grid_transform(vector<double> grid_in, vector<double>& grid_out, in
         lat = grid_in[i];
         lon = grid_in[i+1];
 
-        lat = (lat * M_PI) / 180; // Convert degrees to radians
+        lat = (lat * M_PI) / 180;       // Convert degrees to radians
         lon = (lon * M_PI) / 180;
 
-        theta = 90 + sp_coord_lat; // Rotation around y-axis
-        phi = sp_coord_lon; // Rotation around z-axis
+        theta = 90 + sp_coord_lat;      // Rotation around y-axis
+        phi = sp_coord_lon;             // Rotation around z-axis
 
-        phi = (phi * M_PI) / 180; // Convert degrees to radians
-        theta = (theta * M_PI) / 180;
+        theta = (theta * M_PI) / 180;   // Convert degrees to radians
+        phi = (phi * M_PI) / 180;
 
-        x = cos(lon) * cos(lat); // Convert from spherical to cartesian coordinates
+        x = cos(lon) * cos(lat);        // Convert from spherical to cartesian coordinates
         y = sin(lon) * cos(lat);
         z = sin(lat);
 
-        if(option == 1) { // Regular -> Rotated
+        if(option == 1) {       // Regular -> Rotated
             x_new = cos(theta) * cos(phi) * x + cos(theta) * sin(phi) * y + sin(theta) * z;
             y_new = -sin(phi) * x + cos(phi) * y;
             z_new = -sin(theta) * cos(phi) * x - sin(theta) * sin(phi) * y + cos(theta) * z;
         }
-        else if(option == 2) { // Rotated -> Regular
+        else if(option == 2) {  // Rotated -> Regular
             phi = -phi;
             theta = -theta;
 
@@ -119,33 +119,39 @@ int main(int argc, char **argv)
 
     cout << "South-west:    " << grid_out[0] << ", " << grid_out[1] << endl;*/
 
-    cout << endl << endl;
-
     // This is the size of the grid found in the GRIB-files.
     int latAmount = 753;
     int lonAmount = 613;
     int latCount = 0;
     int lonCount = 0;
     int count = 0;
+
+    // All coordinates belong to array "coordinates" in the JSON file.
+    coordinates_file_out << "{\"coordinates\":[";
+
     // This takes the first coordinate at the south-west corner and then skips over coordinates defined by point_interval.
     // If point_interval is set to 1, every coordinate is written to JSON. If for example point_interval is set to 14
     // 0:0 is written, then 14:0, 28:0 ... 742:602, a total of 2376 coordinates(twice as many values) written to JSON file.
-    cout << "Last pair in grid_out: " << grid_out[grid_out.size()-2] << " " << grid_out[grid_out.size()-1] << endl;
-    cout << "Size of grid_out: " << grid_out.size() << endl;
+    //cout << "Last pair in grid_out: " << grid_out[grid_out.size()-2] << " " << grid_out[grid_out.size()-1] << endl;
+    //cout << "Size of grid_out: " << grid_out.size() << endl;
 
     for(int latCount = 0; latCount < latAmount; ++latCount) {
         for(int lonCount = 0; lonCount < lonAmount; ++lonCount) {
             if(latCount % point_interval == 0 && lonCount % point_interval == 0) {
                 int pos = latCount * lonAmount + lonCount;
-                //cout << "in if: " << pos*2 << " " << latCount << " " << lonCount << endl;
+
                 coordinates_file_out << grid_out[2*pos] << ',';
-                coordinates_file_out << grid_out[2*pos+1] << ',';
+                coordinates_file_out << grid_out[2*pos+1];
+                if(pos != (latAmount - (latAmount % point_interval)) * lonAmount + lonAmount - (lonAmount % point_interval))
+                    coordinates_file_out << ',';
+
                 grid_out_check.push_back(grid_out[2*pos]);
                 grid_out_check.push_back(grid_out[2*pos+1]);
                 count++;
             }
         }
     }
+    coordinates_file_out << "]}";
 
     /*cout << endl;
     cout << "North-west:    " << grid_out_check[2*(44*54-43-2)] << ", " << grid_out_check[2*(44*54-43-2)+1] << endl;
@@ -207,8 +213,8 @@ int main(int argc, char **argv)
     cout << "South-west:    " << grid_out_check[2*6] << ", " << grid_out_check[2*6+1] << endl;  // 7
 */
 
-    cout << endl;
-    cout << "North-west:    " << grid_out_check[2*(44*54-43+3)] << ", " << grid_out_check[2*(44*54-43+3)+1] << endl;    // 5
+    //cout << endl;
+    //cout << "North-west:    " << grid_out_check[2*(44*54-43+3)] << ", " << grid_out_check[2*(44*54-43+3)+1] << endl;    // 5
 
     /*for(int i = 0; i < grid_out.size(); i+=2) {
         // Save latitude and longitude for every point_interval:th coordinate

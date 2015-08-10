@@ -3,6 +3,7 @@
 #include <string>
 #include <stdlib.h>
 #include <vector>
+#include <math.h>
 using namespace std;
 
 // Works exactly like parseParameter.cc except it does a simple
@@ -37,7 +38,7 @@ int main(int argc, char **argv)
 
     // Read in temperature files for all time steps(varies around 70? we currently only have 16 sample files)
     for(int i = 0; i < num_of_files; ++i) {
-        string temperature_path = in_grib + "time_" + to_string(i+1) + "/temperature";
+        string temperature_path = in_grib + "time_" + to_string(i+1) + "/t";
         ifstream temperature_file_in(temperature_path.c_str());
         cout << "Reading file at path: " << temperature_path << endl;
         cout << "i: " << i << " num_of_files-1: " << num_of_files-1 << endl;
@@ -47,6 +48,7 @@ int main(int argc, char **argv)
         while(!temperature_file_in.eof()) {
             temperature_file_in >> trash >> trash >> temperature;
             temperature -= 273.15;
+            temperature = floor(temperature * 10.0) / 10.0;
             temperatures.push_back(temperature);
         }
 
