@@ -53,8 +53,8 @@ int main(int argc, char **argv)
             // Round cloud parameter to 2 decimals instead of 7.
             //value = (int)(value * 100);
             //value = value / 100;
-            //value = floor(value * 10000000.0) / 10000000.0;
-            value = floor(value * 100.0) / 100.0;
+            value = floor(value * 10000000.0) / 10000000.0;
+            //value = floor(value * 100.0) / 100.0;
             values.push_back(value);
         }
 
